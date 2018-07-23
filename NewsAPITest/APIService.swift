@@ -13,7 +13,7 @@ class APIService: NSObject {
     
     let query = "news"
     lazy var endPoint: String = {
-        return "https://newsapi.org/v2/top-headlines?country=us&apiKey=0c65a61c41644ece8019a970b6458c4c"
+        return "https://newsapi.org/v2/top-headlines?sources=bbc-news&apiKey=0c65a61c41644ece8019a970b6458c4c"
     }()
     
     func getDataWith(completion: @escaping (Result<[[String: AnyObject]]>) -> Void) {

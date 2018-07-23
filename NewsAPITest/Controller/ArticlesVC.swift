@@ -15,6 +15,9 @@ class ArticlesVC: UITableViewController {
     
     private let cellID = "cellID"
     
+    var searchController: UISearchController!
+
+    
     lazy var fetchedhResultController: NSFetchedResultsController<NSFetchRequestResult> = {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: Article.self))
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "author", ascending: true)]
@@ -25,9 +28,25 @@ class ArticlesVC: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        searchController = UISearchController(searchResultsController: nil)
+        
+        searchController.searchResultsUpdater = self as? UISearchResultsUpdating
+        
+        searchController.dimsBackgroundDuringPresentation = false
+        
+        searchController.searchBar.sizeToFit()
+        
+        tableView.tableHeaderView = searchController.searchBar
+        
+        searchController.searchBar.delegate = self
+        
+        definesPresentationContext = true
         self.title = "News Feed"
         view.backgroundColor = .white
         tableView.register(ArticlesCell.self, forCellReuseIdentifier: cellID)
+        
+        
         updateTableContent()
     }
     
@@ -92,7 +111,7 @@ class ArticlesVC: UITableViewController {
         if let articleEntity = NSEntityDescription.insertNewObject(forEntityName: "Article", into: context) as? Article {
             articleEntity.author = dictionary["author"] as? String
             articleEntity.title = dictionary["title"] as? String
-            let mediaDictionary = dictionary["urlToImage"] as? [String: AnyObject]
+            _ = dictionary["urlToImage"] as? [String: AnyObject]
             articleEntity.mediaURL = dictionary["urlToImage"] as? String
             return articleEntity
         }
@@ -122,6 +141,9 @@ class ArticlesVC: UITableViewController {
             }
         }
     }
+    
+    
+    
 }
 
 
@@ -147,3 +169,69 @@ extension ArticlesVC: NSFetchedResultsControllerDelegate {
         tableView.beginUpdates()
     }
 }
+
+
+
+
+
+//MARK: - Search bar methods
+extension ArticlesVC: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        print("hey")
+        tableView.reloadData()
+    }
+    
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        print("Should end")
+        return true
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        print("Will search for" + searchBar.text!)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        guard !searchText.isEmpty else {
+            tableView.reloadData()
+            print(searchText)
+            return
+        }
+        
+    }
+
+//    func updateSearchResultsForSearchController(searchController: UISearchController) {
+//        var request = NSFetchRequest<NSFetchRequestResult>(entityName: "Article")
+//        filteredTableData.removeAll(keepCapacity: false)
+//
+//        let searchPredicate = NSPredicate(format: "SELF.infos CONTAINS[c] %@", searchController.searchBar.text!)
+//
+//        let array = (Article as NSArray).filteredArrayUsingPredicate(searchPredicate)
+//
+//        for item in array
+//        {
+//            let infoString = item.infos
+//            filteredTableData.append(infoString)
+//        }
+//
+//        self.tableView.reloadData()
+//    }
+    
+//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+//    guard !searchText.isEmpty else {
+//    tableView.reloadData()
+//    print(searchText)
+//    return
+//    }
+//
+//            DispatchQueue.main.async {
+//                searchBar.resignFirstResponder()
+//            }
+//        }
+//    }
+}
+
+
+
